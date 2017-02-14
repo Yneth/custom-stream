@@ -3,14 +3,15 @@ package ua.rd.utils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public interface Stream<A> {
     Empty EMPTY = new Empty();
 
-    <R> R foldRight(R initial, AccumulatorRight<A, R> function);
+    <R> R foldRight(R initial, BiFunction<A, Lazy<R>, R> function);
 
-    <R> R foldLeft(R initial, AccumulatorLeft<A, R> function);
+    <R> R foldLeft(R initial, BiFunction<R, A, R> function);
 
     <R> Stream<R> map(Function<A, R> mapper);
 
@@ -52,13 +53,13 @@ class Cons<A> implements Stream<A> {
     }
 
     @Override
-    public <R> R foldRight(R initial, AccumulatorRight<A, R> function) {
-        return function.accumulate(value.get(), () -> tail.get().foldRight(initial, function));
+    public <R> R foldRight(R initial, BiFunction<A, Lazy<R>, R> function) {
+        return function.apply(value.get(), () -> tail.get().foldRight(initial, function));
     }
 
     @Override
-    public <R> R foldLeft(R initial, AccumulatorLeft<A, R> function) {
-        return tail.get().foldLeft(function.accumulate(initial, value.get()), function);
+    public <R> R foldLeft(R initial, BiFunction<R, A, R> function) {
+        return tail.get().foldLeft(function.apply(initial, value.get()), function);
     }
 
     @Override
@@ -101,12 +102,12 @@ class Cons<A> implements Stream<A> {
 class Empty implements Stream<Object> {
 
     @Override
-    public <R> R foldRight(R initial, AccumulatorRight<Object, R> function) {
+    public <R> R foldRight(R initial, BiFunction<Object, Lazy<R>, R> function) {
         return initial;
     }
 
     @Override
-    public <R> R foldLeft(R initial, AccumulatorLeft<Object, R> function) {
+    public <R> R foldLeft(R initial, BiFunction<R, Object, R> function) {
         return initial;
     }
 
