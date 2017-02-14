@@ -7,13 +7,17 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public interface Stream<A> {
-    Empty EMPTY = new Empty();
+    Empty EMPTY_STREAM = new Empty();
 
     <R> R foldRight(R initial, BiFunction<A, Lazy<R>, R> function);
 
     <R> R foldLeft(R initial, BiFunction<R, A, R> function);
 
     <R> Stream<R> map(Function<A, R> mapper);
+
+    Stream<A> append(Stream<A> other);
+
+    <R> Stream<R> flatMap(Function<A, Stream<R>> fr);
 
     Stream<A> filter(Function<A, Boolean> mapper);
 
@@ -27,8 +31,8 @@ public interface Stream<A> {
         return new Cons<>(value, tail);
     }
 
-    static <B> Stream<B> none() {
-        return (Stream<B>) EMPTY;
+    static <B> Stream<B> empty() {
+        return (Stream<B>) EMPTY_STREAM;
     }
 
     static <B> Stream<B> constant(B b) {
@@ -37,7 +41,7 @@ public interface Stream<A> {
 
     static Stream<Integer> range(int a, int b) {
         if (a >= b) {
-            return none();
+            return empty();
         }
         return new Cons<>(() -> a, () -> range(a + 1, b));
     }
@@ -64,12 +68,22 @@ class Cons<A> implements Stream<A> {
 
     @Override
     public <R> Stream<R> map(Function<A, R> mapper) {
-        return foldRight(Stream.none(), (a, s) -> Stream.cons(() -> mapper.apply(a), s));
+        return foldRight(Stream.empty(), (a, s) -> Stream.cons(() -> mapper.apply(a), s));
+    }
+
+    @Override
+    public Stream<A> append(Stream<A> other) {
+        return foldRight(other, (a, lazyR) -> Stream.cons(() -> a, lazyR));
+    }
+
+    @Override
+    public <R> Stream<R> flatMap(Function<A, Stream<R>> fr) {
+        return foldRight(Stream.empty(), (a, lazyR) -> fr.apply(a).append(lazyR.get()));
     }
 
     @Override
     public Stream<A> filter(Function<A, Boolean> filter) {
-        return foldRight(Stream.none(), (a, s) -> {
+        return foldRight(Stream.empty(), (a, s) -> {
             if (!filter.apply(a)) {
                 return Stream.cons(() -> a, s);
             }
@@ -81,7 +95,7 @@ class Cons<A> implements Stream<A> {
     public Stream<A> take(int n) {
         if (n > 0)
             return Stream.cons(value, () -> tail.get().take(n - 1));
-        return Stream.none();
+        return Stream.empty();
     }
 
     @Override
@@ -113,17 +127,27 @@ class Empty implements Stream<Object> {
 
     @Override
     public <R> Stream<R> map(Function<Object, R> mapper) {
-        return Stream.none();
+        return Stream.empty();
+    }
+
+    @Override
+    public Stream<Object> append(Stream<Object> other) {
+        return Stream.empty();
+    }
+
+    @Override
+    public <R> Stream<R> flatMap(Function<Object, Stream<R>> fr) {
+        return Stream.empty();
     }
 
     @Override
     public Stream<Object> filter(Function<Object, Boolean> mapper) {
-        return Stream.none();
+        return Stream.empty();
     }
 
     @Override
     public Stream<Object> take(int n) {
-        return Stream.none();
+        return Stream.empty();
     }
 
     @Override
