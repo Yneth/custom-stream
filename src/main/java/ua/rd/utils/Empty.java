@@ -7,6 +7,9 @@ import java.util.function.Function;
 
 class Empty implements Stream<Object> {
 
+    Empty() {
+    }
+
     @Override
     public <R> R foldRight(R initial, BiFunction<Object, Lazy<R>, R> function) {
         return initial;
