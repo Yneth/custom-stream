@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 class Empty implements Stream<Object> {
 
@@ -22,27 +23,27 @@ class Empty implements Stream<Object> {
 
     @Override
     public <R> Stream<R> map(Function<Object, R> mapper) {
-        return Stream.empty();
+        return StreamOps.empty();
     }
 
     @Override
     public Stream<Object> append(Stream<Object> other) {
-        return Stream.empty();
+        return StreamOps.empty();
     }
 
     @Override
     public <R> Stream<R> flatMap(Function<Object, Stream<R>> fr) {
-        return Stream.empty();
+        return StreamOps.empty();
     }
 
     @Override
-    public Stream<Object> filter(Function<Object, Boolean> mapper) {
-        return Stream.empty();
+    public Stream<Object> filter(Predicate<Object> predicate) {
+        return StreamOps.empty();
     }
 
     @Override
     public Stream<Object> take(int n) {
-        return Stream.empty();
+        return StreamOps.empty();
     }
 
     @Override
