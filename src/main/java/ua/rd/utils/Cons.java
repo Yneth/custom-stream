@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 class Cons<A> implements Stream<A> {
     private final Lazy<A> value;
@@ -26,35 +27,37 @@ class Cons<A> implements Stream<A> {
 
     @Override
     public <R> Stream<R> map(Function<A, R> mapper) {
-        return foldRight(Stream.empty(), (a, lazyAcc) -> Stream.cons(() -> mapper.apply(a), lazyAcc));
+        return foldRight(StreamOps.empty(), (a, lazyAcc) ->
+                StreamOps.cons(() -> mapper.apply(a), lazyAcc)
+        );
     }
 
     @Override
     public Stream<A> append(Stream<A> other) {
-        return foldRight(other, (a, lazyAcc) -> Stream.cons(() -> a, lazyAcc));
+        return foldRight(other, (a, lazyAcc) -> StreamOps.cons(() -> a, lazyAcc));
     }
 
     @Override
     public <R> Stream<R> flatMap(Function<A, Stream<R>> fr) {
-        return foldRight(Stream.empty(), (a, lazyR) -> fr.apply(a).append(lazyR.get()));
+        return foldRight(StreamOps.empty(), (a, lazyAcc) -> fr.apply(a).append(new DelayedCons<>(lazyAcc)));
     }
 
     @Override
-    public Stream<A> filter(Function<A, Boolean> filter) {
-        return foldRight(Stream.empty(), (a, lazyAcc) -> {
-            if (!filter.apply(a)) {
-                return Stream.cons(() -> a, lazyAcc);
+    public Stream<A> filter(Predicate<A> predicate) {
+        return foldRight(StreamOps.empty(), (a, lazyAcc) -> {
+            if (!predicate.test(a)) {
+                return StreamOps.cons(() -> a, lazyAcc);
             }
-            return lazyAcc.get();
+            return new DelayedCons<>(lazyAcc);
         });
     }
 
     @Override
     public Stream<A> take(int n) {
         if (n > 0) {
-            return Stream.cons(value, () -> tail.get().take(n - 1));
+            return StreamOps.cons(value, () -> tail.get().take(n - 1));
         }
-        return Stream.empty();
+        return StreamOps.empty();
     }
 
     @Override
