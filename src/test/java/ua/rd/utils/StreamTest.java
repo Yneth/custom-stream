@@ -7,23 +7,6 @@ import static org.junit.Assert.assertTrue;
 public class StreamTest {
 
     @Test
-    public void testSome() {
-        System.out.println(StreamOps.range(0, 5).
-                map(i -> {
-                    System.out.println("map " + i + " to " + (i * 3));
-                    return i * 3;
-                }).
-                filter(i -> {
-                    System.out.println("filter " + i);
-                    return i % 2 != 0;
-                }).
-                map(i -> {
-                    System.out.println("map " + i + " to " + (i * 100));
-                    return i * 100;
-                }).toList());
-    }
-
-    @Test
     public void noneStreamShouldReturnTrueOnIsEmpty() {
         assertTrue(StreamOps.empty().isEmpty());
     }
