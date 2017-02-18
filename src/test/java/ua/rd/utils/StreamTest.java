@@ -8,7 +8,7 @@ public class StreamTest {
 
     @Test
     public void testSome() {
-        StreamOps.range(0, 3).
+        System.out.println(StreamOps.range(0, 5).
                 map(i -> {
                     System.out.println("map " + i + " to " + (i * 3));
                     return i * 3;
@@ -18,9 +18,9 @@ public class StreamTest {
                     return i % 2 != 0;
                 }).
                 map(i -> {
-                    System.out.println(i * 100);
+                    System.out.println("map " + i + " to " + (i * 100));
                     return i * 100;
-                }).toList().forEach(System.out::println);
+                }).toList());
     }
 
     @Test

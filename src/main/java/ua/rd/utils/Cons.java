@@ -27,9 +27,10 @@ class Cons<A> implements Stream<A> {
 
     @Override
     public <R> Stream<R> map(Function<A, R> mapper) {
-        return foldRight(StreamOps.empty(), (a, lazyAcc) ->
-                StreamOps.cons(() -> mapper.apply(a), lazyAcc)
-        );
+        return foldRight(StreamOps.empty(), (a, lazyAcc) -> {
+            R result = mapper.apply(a);
+            return StreamOps.cons(() -> result, lazyAcc);
+        });
     }
 
     @Override
