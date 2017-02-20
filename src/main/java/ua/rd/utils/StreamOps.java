@@ -19,7 +19,10 @@ public final class StreamOps {
     }
 
     public static <A> Stream<A> cons(Lazy<A> value, Lazy<Stream<A>> tail) {
-        return new Cons<>(value, tail);
+        if (value == null) {
+            return empty();
+        }
+        return new Cons<>(value, tail == null ? StreamOps::empty : tail);
     }
 
     public static <A> Stream<A> empty() {
