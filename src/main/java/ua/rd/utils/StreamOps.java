@@ -8,9 +8,7 @@ public final class StreamOps {
     }
 
     public static <A> Stream<A> of(A... as) {
-        A[] copy = (A[]) new Object[as.length];
-        System.arraycopy(as, 0, copy, 0, as.length);
-        return of(0, copy);
+        return of(0, as);
     }
 
     private static <A> Stream<A> of(int index, A... as) {
