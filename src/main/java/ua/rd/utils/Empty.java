@@ -28,7 +28,7 @@ class Empty implements Stream<Object> {
 
     @Override
     public Stream<Object> append(Stream<Object> other) {
-        return StreamOps.empty();
+        return other;
     }
 
     @Override
